@@ -9,7 +9,10 @@ import org.osgi.service.metatype.annotations.Designate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.jcr.*;
+import javax.jcr.Session;
+import javax.jcr.NodeIterator;
+import javax.jcr.Node;
+import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -19,6 +22,8 @@ import javax.jcr.query.QueryResult;
 public class JCRQueryServiceImpl implements PageSearchService {
 
     private String keyword;
+    private static final Logger LOG = LoggerFactory.getLogger(JCRQueryServiceImpl.class);
+    private static final String QUERY_TITLE_FORMAT = "SELECT * FROM [nt:base] AS s WHERE ISDESCENDANTNODE([%s]) AND CONTAINS([jcr:title], \"%s\")";
 
     @Activate
     @Modified
@@ -26,13 +31,11 @@ public class JCRQueryServiceImpl implements PageSearchService {
         this.keyword = jcrQueryServiceConfig.keyword();
     }
 
-    private static final Logger log = LoggerFactory.getLogger(JCRQueryServiceImpl.class);
-
     @Override
     public StringBuilder listOfNodesFromRootPathByKeyword(Session session, String rootPath) {
 
         NodeIterator nodeIterator = null;
-        String expression = String.format("SELECT * FROM [nt:base] AS s WHERE ISDESCENDANTNODE([%s]) AND CONTAINS([jcr:title], \"%s\")", rootPath, keyword);
+        String expression = String.format(QUERY_TITLE_FORMAT, rootPath, keyword);
         StringBuilder builder = new StringBuilder();
 
         try {
@@ -44,13 +47,13 @@ public class JCRQueryServiceImpl implements PageSearchService {
             while (nodeIterator.hasNext()){
                 Node node = nodeIterator.nextNode();
                 builder.append("Path: " + node.getPath() + "\n");
-                if (!String.valueOf(node.getProperty("jcr:title")).equals("")){
-                    log.info("url with title: " + node.getPath());
+                if (!String.valueOf(node.getProperty("jcr:title")).isEmpty()){
+                    LOG.info("url with title: " + node.getPath());
                 }
             }
 
         } catch (RepositoryException e) {
-            e.printStackTrace();
+            return builder.append("Failed while getting value from query");
         }
         return builder;
     }

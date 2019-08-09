@@ -27,15 +27,15 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVL
         })
 public class QueryBuilderServlet extends SlingSafeMethodsServlet {
 
+    private static final Logger LOG = LoggerFactory.getLogger(QueryBuilderServlet.class);
+
     @Reference
     private PageSearchService jcrQueryServiceImpl;
 
-    private static final Logger log = LoggerFactory.getLogger(QueryBuilderServlet.class);
-
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
-        log.info("Executing Query Builder servlet");
-        log.info("Test test: " + System.getProperty("sling.run.modes"));
+        LOG.info("Executing Query Builder servlet");
+        LOG.info("Test test: " + System.getProperty("sling.run.modes"));
         ResourceResolver resourceResolver = request.getResourceResolver();
         Session session = resourceResolver.adaptTo(Session.class);
         StringBuilder builder = jcrQueryServiceImpl.listOfNodesFromRootPathByKeyword(session, "/content");
