@@ -21,9 +21,11 @@ import javax.jcr.query.QueryResult;
 @Designate(ocd = JCRQueryServiceConfig.class)
 public class JCRQueryServiceImpl implements PageSearchService {
 
+    /** Queries */
+    private static final String QUERY_TITLE_FORMAT = "SELECT * FROM [nt:base] AS s WHERE ISDESCENDANTNODE([%s]) AND CONTAINS([jcr:title], \"%s\")";
+
     private String keyword;
     private static final Logger LOG = LoggerFactory.getLogger(JCRQueryServiceImpl.class);
-    private static final String QUERY_TITLE_FORMAT = "SELECT * FROM [nt:base] AS s WHERE ISDESCENDANTNODE([%s]) AND CONTAINS([jcr:title], \"%s\")";
 
     @Activate
     @Modified
