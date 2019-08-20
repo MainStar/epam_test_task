@@ -10,9 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.Session;
-import javax.jcr.NodeIterator;
-import javax.jcr.Node;
 import javax.jcr.RepositoryException;
+import javax.jcr.NodeIterator;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import javax.jcr.query.QueryResult;
@@ -21,7 +20,9 @@ import javax.jcr.query.QueryResult;
 @Designate(ocd = JCRQueryServiceConfig.class)
 public class JCRQueryServiceImpl implements PageSearchService {
 
-    /** Queries */
+    /**
+     * Queries
+     */
     private static final String QUERY_TITLE_FORMAT = "SELECT * FROM [nt:base] AS s WHERE ISDESCENDANTNODE([%s]) AND CONTAINS([jcr:title], \"%s\")";
 
     private String keyword;
@@ -29,34 +30,22 @@ public class JCRQueryServiceImpl implements PageSearchService {
 
     @Activate
     @Modified
-    public void activate(JCRQueryServiceConfig jcrQueryServiceConfig){
+    public void activate(JCRQueryServiceConfig jcrQueryServiceConfig) {
         this.keyword = jcrQueryServiceConfig.keyword();
     }
 
     @Override
-    public StringBuilder listOfNodesFromRootPathByKeyword(Session session, String rootPath) {
+    public QueryResult executeQueryWithKeyword(Session session, String rootNode) throws RepositoryException {
+        QueryManager queryManager = session.getWorkspace().getQueryManager();
+        Query query = queryManager.createQuery(String.format(QUERY_TITLE_FORMAT, rootNode, keyword), Query.JCR_SQL2);
+        return query.execute();
+    }
 
-        NodeIterator nodeIterator = null;
-        String expression = String.format(QUERY_TITLE_FORMAT, rootPath, keyword);
+    @Override
+    public StringBuilder extractPaths(NodeIterator nodeIterator) throws RepositoryException {
         StringBuilder builder = new StringBuilder();
-
-        try {
-            QueryManager queryManager = session.getWorkspace().getQueryManager();
-            Query query = queryManager.createQuery(expression, Query.JCR_SQL2);
-            QueryResult queryResult = query.execute();
-            nodeIterator = queryResult.getNodes();
-
-            while (nodeIterator.hasNext()){
-                Node node = nodeIterator.nextNode();
-                builder.append("Path: " + node.getPath() + "\n");
-                if (!String.valueOf(node.getProperty("jcr:title")).isEmpty()){
-                    LOG.info("url with title: " + node.getPath());
-                }
-            }
-
-        } catch (RepositoryException e) {
-            return builder.append("Failed while getting value from query");
-        }
+        while (nodeIterator.hasNext())
+            builder.append(nodeIterator.nextNode().getPath() + "\n");
         return builder;
     }
 }

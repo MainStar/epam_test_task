@@ -111,6 +111,9 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>aem-company.myproject-bundle</Bundle-SymbolicName>
+                        <Bundle-Activator>
+                            com.aem.myproject.util.Activator
+                        </Bundle-Activator>
                     </instructions>
                 </configuration>
             </plugin>

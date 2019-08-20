@@ -12,7 +12,9 @@ import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.Session;
+import javax.jcr.query.QueryResult;
 import javax.servlet.Servlet;
 import java.io.IOException;
 
@@ -28,6 +30,7 @@ import static org.apache.sling.api.servlets.ServletResolverConstants.SLING_SERVL
 public class QueryBuilderServlet extends SlingSafeMethodsServlet {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryBuilderServlet.class);
+    private StringBuilder builder;
 
     @Reference
     private PageSearchService jcrQueryServiceImpl;
@@ -35,10 +38,16 @@ public class QueryBuilderServlet extends SlingSafeMethodsServlet {
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         LOG.info("Executing Query Builder servlet");
-        LOG.info("Test test: " + System.getProperty("sling.run.modes"));
         ResourceResolver resourceResolver = request.getResourceResolver();
         Session session = resourceResolver.adaptTo(Session.class);
-        StringBuilder builder = jcrQueryServiceImpl.listOfNodesFromRootPathByKeyword(session, "/content");
+        try {
+
+            QueryResult queryResult = jcrQueryServiceImpl.executeQueryWithKeyword(session, "/content");
+            builder = jcrQueryServiceImpl.extractPaths(queryResult.getNodes());
+
+        } catch (RepositoryException e) {
+            LOG.error(e.toString());
+        }
         response.getWriter().write("" + builder);
     }
 }
