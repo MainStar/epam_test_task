@@ -40,7 +40,6 @@ public class QueryBuilderServlet extends SlingSafeMethodsServlet {
         LOG.info("Executing Query Builder servlet");
 
         String parameter = String.valueOf(request.getAttribute("rootPath"));
-        LOG.info("Path parameter: " + parameter);
         ResourceResolver resourceResolver = request.getResourceResolver();
         Session session = resourceResolver.adaptTo(Session.class);
         try {

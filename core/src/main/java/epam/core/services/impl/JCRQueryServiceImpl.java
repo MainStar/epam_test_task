@@ -36,7 +36,6 @@ public class JCRQueryServiceImpl implements PageSearchService {
 
     @Override
     public QueryResult executeQueryWithKeyword(Session session, String rootNode) throws RepositoryException {
-        LOG.info("Query String: " + String.format(QUERY_TITLE_FORMAT, rootNode, keyword));
         QueryManager queryManager = session.getWorkspace().getQueryManager();
         Query query = queryManager.createQuery(String.format(QUERY_TITLE_FORMAT, rootNode, keyword), Query.JCR_SQL2);
         return query.execute();
