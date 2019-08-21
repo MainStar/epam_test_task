@@ -38,11 +38,14 @@ public class QueryBuilderServlet extends SlingSafeMethodsServlet {
     @Override
     protected void doGet(SlingHttpServletRequest request, SlingHttpServletResponse response) throws IOException {
         LOG.info("Executing Query Builder servlet");
+
+        String parameter = String.valueOf(request.getAttribute("rootPath"));
+        LOG.info("Path parameter: " + parameter);
         ResourceResolver resourceResolver = request.getResourceResolver();
         Session session = resourceResolver.adaptTo(Session.class);
         try {
 
-            QueryResult queryResult = jcrQueryServiceImpl.executeQueryWithKeyword(session, "/content");
+            QueryResult queryResult = jcrQueryServiceImpl.executeQueryWithKeyword(session, parameter);
             builder = jcrQueryServiceImpl.extractPaths(queryResult.getNodes());
 
         } catch (RepositoryException e) {
