@@ -19,6 +19,9 @@ import java.util.List;
 
 public class TestJCRQuerySearchService {
 
+    public static final String USER_NAME = "admin";
+    public static final String USER_PASSWORD = "12345Vlad";
+
     private Session session;
     private String rootNode = "/content";
     private List<String> requestPaths = new ArrayList<>();
@@ -26,14 +29,14 @@ public class TestJCRQuerySearchService {
     @Inject
     private PageSearchService jcrQueryService;
 
+    @Inject
+    private Repository repository;
+
     @Before
     public  void setup() throws RepositoryException {
-        String userName = "admin";
-        String userPassword = "12QWaszxc";
 
-        jcrQueryService = new JCRQueryServiceImpl();
-        Repository repository = JcrUtils.getRepository("http://localhost:4502/crx/server");
-        session = repository.login(new SimpleCredentials(userName, userPassword.toCharArray()));
+//        jcrQueryService = new JCRQueryServiceImpl();
+        session = repository.login(new SimpleCredentials(USER_NAME, USER_PASSWORD.toCharArray()));
 
         requestPaths.add("/content/communities/enablement/createresourcessteps/test");
         requestPaths.add("/content/we-retail/us/en/user/smartlist/Test/jcr:content");

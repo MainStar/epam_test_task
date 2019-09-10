@@ -18,6 +18,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 
 @Component(service = Filter.class,
@@ -42,14 +43,16 @@ public class QueryBuilderFilter implements Filter {
         SlingHttpServletResponse response = (SlingHttpServletResponse) servletResponse;
 
         String rootPath = request.getParameter("rootPath");
+        if (!isContainsFirstSlash(rootPath))
+            rootPath = addFirstSlash(rootPath);
 
         try {
             Node parentNode = getParentNode(request, rootPath);
             request.setAttribute("rootPath", parentNode.getPath());
-            filterChain.doFilter(request, response);
         } catch (RepositoryException e) {
             LOG.error("Failed while getting parent node " + e);
         }
+        filterChain.doFilter(request, response);
     }
 
     private Node getParentNode(SlingHttpServletRequest request, String rootPath) throws RepositoryException {
@@ -57,6 +60,14 @@ public class QueryBuilderFilter implements Filter {
         Resource resource = resourceResolver.getResource(rootPath);
         Node node = resource.adaptTo(Node.class);
         return node.getParent();
+    }
+
+    private boolean isContainsFirstSlash(String str){
+        return str.substring(0, 1).equals("/");
+    }
+
+    private String addFirstSlash(String str){
+        return "/" + str;
     }
 
     @Override
