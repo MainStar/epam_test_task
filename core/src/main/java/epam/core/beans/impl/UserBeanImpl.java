@@ -35,9 +35,12 @@ public class UserBeanImpl extends AnnotatedStandardMBean implements UserBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentEducationListener.class);
     private static final String CONTENT_AUTHOR_USER = "content-author";
+    private static final String CONTENT_RESOURCE = "/content";
+    private static final String CRX_REPLICATE_PERMISSIONS = "crx:replicate";
     private String GROUP_NAME = "authors";
 
     private Map<String, Object> userData;
+    private ResourceResolver resourceResolver;
 
     public UserBeanImpl() throws NotCompliantMBeanException {
         super(UserBean.class);
@@ -47,7 +50,7 @@ public class UserBeanImpl extends AnnotatedStandardMBean implements UserBean {
     private ResourceResolverFactory resourceResolverFactory;
 
     @Activate
-    public void activate(){
+    public void activate() {
         LOG.info("Initializing user map");
         userData = new HashMap<>();
         userData.put(ResourceResolverFactory.SUBSERVICE, "test");
@@ -55,8 +58,6 @@ public class UserBeanImpl extends AnnotatedStandardMBean implements UserBean {
 
     @Override
     public void createUser() throws RepositoryException {
-        LOG.info("User bean test");
-        ResourceResolver resourceResolver = null;
         try {
             resourceResolver = resourceResolverFactory.getServiceResourceResolver(userData);
 
@@ -67,20 +68,20 @@ public class UserBeanImpl extends AnnotatedStandardMBean implements UserBean {
             User user = manager.createUser(CONTENT_AUTHOR_USER, CONTENT_AUTHOR_USER);
             resourceResolver.commit();
 
-            AccessControlUtils.deny(resourceResolver.getResource("/content").adaptTo(Node.class), CONTENT_AUTHOR_USER, new String[]{"crx:replicate"});
+            denyReplications();
             resourceResolver.commit();
-
             groupAuthors.addMember(user);
             resourceResolver.commit();
 
         } catch (LoginException e) {
-            e.printStackTrace();
+            LOG.info("Unable to login: " + e);
         } catch (PersistenceException e) {
-            e.printStackTrace();
+            LOG.error("Unable to commit changes: " + e);
         } finally {
-            resourceResolver.close();
+            if (resourceResolver.isLive()) {
+                resourceResolver.close();
+            }
         }
-        LOG.info("Session in bean was saved successfully");
     }
 
     private void deleteUserIfExist(UserManager manager) throws RepositoryException {
@@ -89,5 +90,10 @@ public class UserBeanImpl extends AnnotatedStandardMBean implements UserBean {
             User user = (User) authorizable;
             user.remove();
         }
+    }
+
+    private void denyReplications() throws RepositoryException, PersistenceException {
+        AccessControlUtils.deny(resourceResolver.getResource(CONTENT_RESOURCE).adaptTo(Node.class),
+                CONTENT_AUTHOR_USER, new String[]{CRX_REPLICATE_PERMISSIONS});
     }
 }
