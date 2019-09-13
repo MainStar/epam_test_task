@@ -38,7 +38,7 @@ public class TestWorkflow implements WorkflowProcess {
             session.save();
         } catch (RepositoryException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             session.logout();
             workflowSession.logout();
         }

@@ -1,5 +1,6 @@
 package epam.core.servlets;
 
+import epam.core.beans.UserBean;
 import epam.core.services.PageSearchService;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;

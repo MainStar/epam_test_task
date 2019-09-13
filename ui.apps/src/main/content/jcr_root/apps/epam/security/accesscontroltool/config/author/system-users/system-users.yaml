@@ -1,0 +1,20 @@
+- user_config:
+
+    - aem-service-user:
+
+        - name: aem-service-user
+          isMemberOf: administrators
+          isSystemUser: true
+
+- ace_config:
+
+    - aem-service-user:
+
+        - path: /content
+          permission: allow
+          privileges: jcr:all
+
+        - path: /home
+          permission: allow
+          privileges: jcr:all
+

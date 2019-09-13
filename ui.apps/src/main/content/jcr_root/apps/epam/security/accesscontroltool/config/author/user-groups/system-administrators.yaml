@@ -1,0 +1,15 @@
+- group_config:
+
+    - system-administrators:
+
+        - name:
+          isMemberOf: authors
+          path: /home/groups/epamgroups
+
+- ace_config:
+
+    - system-administrators:
+
+        - path: /apps/system/config
+          permission: allow
+          privileges: jcr:all

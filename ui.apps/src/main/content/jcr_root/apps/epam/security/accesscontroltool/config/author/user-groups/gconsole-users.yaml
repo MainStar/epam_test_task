@@ -1,0 +1,15 @@
+- group_config:
+
+    - gconsole-users:
+
+        - name:
+          isMemberOf: authors
+          path: /home/groups/epamgroups
+
+- ace_config:
+
+    - gconsole-users:
+
+        - path: /var/groovyconsole
+          permission: allow
+          privileges: jcr:read,rep:write,jcr:lockManagement,crx:replicate,jcr:versionManagement,jcr:lifecycleManagement,jcr:nodeTypeManagement,jcr:retentionManagement
